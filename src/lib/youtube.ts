@@ -46,17 +46,17 @@ export async function getLatestVideos(channelId: string, maxResults: number = 6)
     const data = await response.json();
     
     // Get video IDs for fetching statistics
-    const videoIds = data.items.map((item: any) => item.id.videoId).join(',');
+    const videoIds = data.items.map((item: { id: { videoId: string } }) => item.id.videoId).join(',');
     
     // Fetch video statistics
     const statsResponse = await fetch(
       `https://www.googleapis.com/youtube/v3/videos?part=statistics&id=${videoIds}&key=${apiKey}`
     );
 
-    let videoStats: any = {};
+    const videoStats: { [key: string]: { viewCount: number; likeCount: number } } = {};
     if (statsResponse.ok) {
       const statsData = await statsResponse.json();
-      statsData.items.forEach((item: any) => {
+      statsData.items.forEach((item: { id: string; statistics: { viewCount: string; likeCount: string } }) => {
         videoStats[item.id] = {
           viewCount: parseInt(item.statistics.viewCount, 10) || 0,
           likeCount: parseInt(item.statistics.likeCount, 10) || 0
@@ -64,7 +64,7 @@ export async function getLatestVideos(channelId: string, maxResults: number = 6)
       });
     }
     
-    return data.items.map((item: any) => ({
+    return data.items.map((item: { id: { videoId: string }; snippet: { title: string; description: string; thumbnails: { medium: { url: string } }; publishedAt: string; channelTitle: string } }) => ({
       id: item.id.videoId,
       title: item.snippet.title,
       description: item.snippet.description,
@@ -144,10 +144,10 @@ export async function getChannelVideosPage(
 
     const data = await response.json();
 
-    const items: any[] = data.items ?? [];
+    const items: { id: { videoId: string }; snippet: { title: string; description: string; thumbnails: { medium: { url: string } }; publishedAt: string; channelTitle: string } }[] = data.items ?? [];
     const videoIds = items.map((item) => item.id.videoId).filter(Boolean);
 
-    let videoStats: Record<string, { viewCount: number; likeCount: number }> = {};
+    const videoStats: Record<string, { viewCount: number; likeCount: number }> = {};
     if (videoIds.length > 0) {
       const statsUrl = new URL('https://www.googleapis.com/youtube/v3/videos');
       statsUrl.searchParams.set('part', 'statistics');
@@ -156,7 +156,7 @@ export async function getChannelVideosPage(
       const statsRes = await fetch(statsUrl.toString());
       if (statsRes.ok) {
         const statsData = await statsRes.json();
-        (statsData.items ?? []).forEach((it: any) => {
+        (statsData.items ?? []).forEach((it: { id: string; statistics: { viewCount: string; likeCount: string } }) => {
           videoStats[it.id] = {
             viewCount: parseInt(it.statistics.viewCount, 10) || 0,
             likeCount: parseInt(it.statistics.likeCount, 10) || 0,
@@ -165,7 +165,7 @@ export async function getChannelVideosPage(
       }
     }
 
-    const videos: YouTubeVideo[] = items.map((item: any) => ({
+    const videos: YouTubeVideo[] = items.map((item) => ({
       id: item.id.videoId,
       title: item.snippet.title,
       description: item.snippet.description,
@@ -198,7 +198,7 @@ export async function getVideosByIds(videoIds: string[]): Promise<YouTubeVideo[]
     if (!res.ok) throw new Error(`YouTube API error: ${res.status}`);
 
     const data = await res.json();
-    return (data.items ?? []).map((item: any) => ({
+    return (data.items ?? []).map((item: { id: string; snippet: { title: string; description: string; thumbnails: { medium: { url: string } }; publishedAt: string; channelTitle: string }; statistics: { viewCount: string; likeCount: string } }) => ({
       id: item.id,
       title: item.snippet.title,
       description: item.snippet.description,

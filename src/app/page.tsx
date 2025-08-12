@@ -1,4 +1,3 @@
-import Image from "next/image";
 import LatestCovers from "@/components/LatestCovers";
 import FeaturedVideo from "@/components/FeaturedVideo";
 import SubscribeCounter from "@/components/SubscribeCounter";

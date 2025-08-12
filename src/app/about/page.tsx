@@ -99,7 +99,7 @@ const sections: Section[] = [
 ];
 
 function YouTubeSection({ channelId }: { channelId: string }) {
-  const [stats, setStats] = useState<any>(null);
+  const [stats, setStats] = useState<{ subscriberCount: string | number; videoCount: string | number; viewCount: string | number } | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -320,7 +320,7 @@ function Section({ section, isVisible, isEven, channelId }: { section: Section; 
       case 'quote':
         return (
           <blockquote className="text-xl text-gray-300 italic border-l-4 border-turquoise-500 pl-6">
-            "{section.content}"
+            &ldquo;{section.content}&rdquo;
           </blockquote>
         );
       default:

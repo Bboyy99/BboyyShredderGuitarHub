@@ -3,26 +3,24 @@
 import { useState } from 'react';
 import Image from 'next/image';
 import { GearSection, GearItem } from '@/data/gear';
-import { getVideosByIds } from '@/lib/youtube';
+import { getVideosByIds, YouTubeVideo } from '@/lib/youtube';
 import React from 'react';
 
 interface GearGalleryProps {
   sections: GearSection[];
-  channelId: string;
 }
 
 interface GearModalProps {
   gear: GearItem;
   isOpen: boolean;
   onClose: () => void;
-  channelId: string;
 }
 
-function GearModal({ gear, isOpen, onClose, channelId }: GearModalProps) {
+function GearModal({ gear, isOpen, onClose }: GearModalProps) {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
-  const [featuredVideos, setFeaturedVideos] = useState<any[]>([]);
+  const [featuredVideos, setFeaturedVideos] = useState<YouTubeVideo[]>([]);
   const [loadingVideos, setLoadingVideos] = useState(false);
-  const [isAutoPlaying, setIsAutoPlaying] = useState(true);
+  const [isAutoPlaying, setIsAutoPlaying] = useState(true); // Auto-start slideshow
 
   // Auto-play slideshow effect
   React.useEffect(() => {
@@ -293,7 +291,7 @@ function GearCard({ gear, onClick }: { gear: GearItem; onClick: () => void }) {
   );
 }
 
-export default function GearGallery({ sections, channelId }: GearGalleryProps) {
+export default function GearGallery({ sections }: GearGalleryProps) {
   const [selectedGear, setSelectedGear] = useState<GearItem | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -314,7 +312,7 @@ export default function GearGallery({ sections, channelId }: GearGalleryProps) {
           My Gear Collection
         </h1>
         <p className="text-xl text-gray-400 max-w-3xl mx-auto">
-          Over the years, I've collected a few good tools for myself. 
+          Over the years, I&apos;ve collected a few good tools for myself. 
           Here they lie, along with the story behind each one.
         </p>
       </div>
@@ -345,7 +343,6 @@ export default function GearGallery({ sections, channelId }: GearGalleryProps) {
           gear={selectedGear}
           isOpen={isModalOpen}
           onClose={closeModal}
-          channelId={channelId}
         />
       )}
     </div>
