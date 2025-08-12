@@ -449,7 +449,9 @@ export default function AboutPage() {
           <div
             key={section.id}
             id={section.id}
-            ref={(el) => (sectionRefs.current[section.id] = el)}
+            ref={(el) => {
+              sectionRefs.current[section.id] = el;
+            }}
           >
             <Section 
               section={section} 

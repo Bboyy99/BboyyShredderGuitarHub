@@ -120,7 +120,7 @@ export default function Tutorials() {
                 recordings with your home setup.
               </p>
               <div className="space-y-2">
-                <h4 className="text-lg font-medium text-blue-400">What You'll Learn:</h4>
+                <h4 className="text-lg font-medium text-blue-400">What You&apos;ll Learn:</h4>
                 <ul className="list-disc list-inside text-gray-300 space-y-1">
                   <li>Setting up your audio interface</li>
                   <li>Configuring Reaper for guitar recording</li>

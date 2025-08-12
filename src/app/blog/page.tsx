@@ -104,10 +104,10 @@ export default function Blog() {
                 <span className="text-gray-400 text-sm">March 5, 2024</span>
               </div>
               <h3 className="text-xl font-semibold text-blue-400 mb-2">
-                Breaking Down Metallica's Rhythm Techniques
+                Breaking Down Metallica&apos;s Rhythm Techniques
               </h3>
               <p className="text-gray-300 mb-4">
-                An in-depth analysis of James Hetfield's iconic rhythm playing style and
+                An in-depth analysis of James Hetfield&apos;s iconic rhythm playing style and
                 how to incorporate it into your own playing.
               </p>
               <button className="text-blue-400 hover:text-blue-300 transition-colors">
