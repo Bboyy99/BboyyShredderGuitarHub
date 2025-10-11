@@ -33,6 +33,21 @@ export interface YouTubeComment {
   videoTitle?: string;
 }
 
+interface YouTubeCommentThreadItem {
+  id: string;
+  snippet: {
+    topLevelComment: {
+      snippet: {
+        textDisplay: string;
+        authorDisplayName: string;
+        authorProfileImageUrl: string;
+        publishedAt: string;
+        likeCount: number;
+      };
+    };
+  };
+}
+
 export async function getLatestVideos(channelId: string, maxResults: number = 6): Promise<YouTubeVideo[]> {
   try {
     // You'll need to get a YouTube API key from Google Cloud Console
@@ -308,7 +323,7 @@ export async function getChannelComments(
         }
 
         const commentsData = await commentsResponse.json();
-        const comments = (commentsData.items || []).map((item: any) => {
+        const comments = (commentsData.items || []).map((item: YouTubeCommentThreadItem) => {
           const snippet = item.snippet.topLevelComment.snippet;
           return {
             id: item.id,
