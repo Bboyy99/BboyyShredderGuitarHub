@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import Image from 'next/image';
-import { getChannelStats } from '@/lib/youtube';
+import { getChannelStats, getChannelComments, YouTubeComment } from '@/lib/youtube';
 
 interface Section {
   id: string;
@@ -17,7 +17,7 @@ interface Section {
 const sections: Section[] = [
   {
     id: 'intro',
-    title: 'Hey, I\'m Brandon',
+    title: 'Hey, I\'m BboyyShredder',
     subtitle: 'Guitarist, Content Creator, Music Enthusiast',
     content: 'Welcome to my corner of the internet! I\'m a passionate guitarist and music lover who loves sharing the joy of music through covers, relaxing soundscapes, and reimagined compositions.',
     type: 'text',
@@ -197,49 +197,139 @@ function YouTubeSection({ channelId }: { channelId: string }) {
   );
 }
 
-function YouTubeCommunitySection() {
+function YouTubeCommunitySection({ channelId }: { channelId: string }) {
   const [currentComment, setCurrentComment] = useState(0);
-  
-  const communityComments = [
-    {
-      text: "This cover is absolutely amazing! 🔥",
-      author: "GuitarLover42",
-      time: "2 hours ago",
-      emoji: "🔥"
-    },
-    {
-      text: "Your tone is incredible, what gear are you using?",
-      author: "MusicExplorer",
-      time: "1 day ago", 
-      emoji: "🎸"
-    },
-    {
-      text: "This helped me learn the song, thank you!",
-      author: "BeginnerGuitarist",
-      time: "3 days ago",
-      emoji: "🙏"
-    },
-    {
-      text: "The emotion in your playing is beautiful",
-      author: "SoulMusicFan",
-      time: "1 week ago",
-      emoji: "💙"
-    },
-    {
-      text: "Can't wait for your next cover!",
-      author: "LoyalViewer",
-      time: "1 week ago",
-      emoji: "⭐"
-    }
-  ];
+  const [comments, setComments] = useState<YouTubeComment[]>([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    const fetchComments = async () => {
+      try {
+        const fetchedComments = await getChannelComments(channelId, 10);
+        if (fetchedComments.length > 0) {
+          setComments(fetchedComments);
+        } else {
+          // Fallback to placeholder comments if no real comments are found
+          setComments([
+            {
+              id: '1',
+              text: "This cover is absolutely amazing! 🔥",
+              author: "GuitarLover42",
+              authorProfileImageUrl: '',
+              publishedAt: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(),
+              likeCount: 42,
+              videoId: '',
+            },
+            {
+              id: '2',
+              text: "Your tone is incredible, what gear are you using?",
+              author: "MusicExplorer",
+              authorProfileImageUrl: '',
+              publishedAt: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString(),
+              likeCount: 28,
+              videoId: '',
+            },
+            {
+              id: '3',
+              text: "This helped me learn the song, thank you!",
+              author: "BeginnerGuitarist",
+              authorProfileImageUrl: '',
+              publishedAt: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(),
+              likeCount: 15,
+              videoId: '',
+            }
+          ] as YouTubeComment[]);
+        }
+      } catch (error) {
+        console.error('Error fetching comments:', error);
+        // Set fallback comments
+        setComments([
+          {
+            id: '1',
+            text: "Love your covers! Keep it up! 🎸",
+            author: "MusicFan",
+            authorProfileImageUrl: '',
+            publishedAt: new Date().toISOString(),
+            likeCount: 10,
+            videoId: '',
+          }
+        ] as YouTubeComment[]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchComments();
+  }, [channelId]);
+
+  useEffect(() => {
+    if (comments.length === 0) return;
+    
     const interval = setInterval(() => {
-      setCurrentComment((prev) => (prev + 1) % communityComments.length);
-    }, 3000);
+      setCurrentComment((prev) => (prev + 1) % comments.length);
+    }, 4000);
 
     return () => clearInterval(interval);
-  }, []);
+  }, [comments.length]);
+
+  const formatTimeAgo = (dateString: string) => {
+    const date = new Date(dateString);
+    const now = new Date();
+    const seconds = Math.floor((now.getTime() - date.getTime()) / 1000);
+
+    if (seconds < 60) return 'just now';
+    if (seconds < 3600) return `${Math.floor(seconds / 60)} minutes ago`;
+    if (seconds < 86400) return `${Math.floor(seconds / 3600)} hours ago`;
+    if (seconds < 604800) return `${Math.floor(seconds / 86400)} days ago`;
+    if (seconds < 2592000) return `${Math.floor(seconds / 604800)} weeks ago`;
+    if (seconds < 31536000) return `${Math.floor(seconds / 2592000)} months ago`;
+    return `${Math.floor(seconds / 31536000)} years ago`;
+  };
+
+  // Function to extract emoji from comment text
+  const extractEmoji = (text: string) => {
+    const emojiRegex = /[\u{1F300}-\u{1F9FF}]|[\u{2600}-\u{26FF}]|[\u{2700}-\u{27BF}]/u;
+    const match = text.match(emojiRegex);
+    return match ? match[0] : '💬';
+  };
+
+  if (loading) {
+    return (
+      <div className="relative h-96 lg:h-full rounded-xl overflow-hidden bg-gradient-to-br from-purple-600/20 to-pink-600/20 border border-purple-500/30">
+        <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent"></div>
+        <div className="relative h-full flex flex-col items-center justify-center p-8">
+          <div className="animate-pulse space-y-4">
+            <div className="h-12 w-12 bg-gray-700 rounded-full"></div>
+            <div className="h-6 w-48 bg-gray-700 rounded"></div>
+            <div className="h-4 w-32 bg-gray-700 rounded"></div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (comments.length === 0) {
+    return (
+      <div className="relative h-96 lg:h-full rounded-xl overflow-hidden bg-gradient-to-br from-purple-600/20 to-pink-600/20 border border-purple-500/30">
+        <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent"></div>
+        <div className="relative h-full flex flex-col items-center justify-center p-8 text-center">
+          <div className="text-6xl mb-4">💬</div>
+          <h3 className="text-2xl font-bold text-white mb-2">Join the Conversation</h3>
+          <p className="text-gray-300 mb-8">Be the first to leave a comment!</p>
+          <a
+            href="https://www.youtube.com/@BboyyShredder"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white rounded-lg font-medium transition-all duration-200 hover:scale-105"
+          >
+            <span>💬</span>
+            Leave a Comment
+            <span>→</span>
+          </a>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="relative h-96 lg:h-full rounded-xl overflow-hidden bg-gradient-to-br from-purple-600/20 to-pink-600/20 border border-purple-500/30">
@@ -254,25 +344,40 @@ function YouTubeCommunitySection() {
         <div className="w-full max-w-md">
           <div className="bg-white/10 backdrop-blur-sm rounded-lg p-6 border border-white/20">
             <div className="flex items-start gap-3 mb-3">
-              <div className="w-8 h-8 bg-gradient-to-br from-purple-400 to-pink-400 rounded-full flex items-center justify-center text-white font-bold text-sm">
-                {communityComments[currentComment].author.charAt(0)}
-              </div>
+              {comments[currentComment].authorProfileImageUrl ? (
+                <img 
+                  src={comments[currentComment].authorProfileImageUrl} 
+                  alt={comments[currentComment].author}
+                  className="w-8 h-8 rounded-full"
+                />
+              ) : (
+                <div className="w-8 h-8 bg-gradient-to-br from-purple-400 to-pink-400 rounded-full flex items-center justify-center text-white font-bold text-sm">
+                  {comments[currentComment].author.charAt(0)}
+                </div>
+              )}
               <div className="flex-1">
                 <div className="flex items-center gap-2 mb-1">
-                  <span className="font-semibold text-white">{communityComments[currentComment].author}</span>
-                  <span className="text-gray-400 text-sm">{communityComments[currentComment].time}</span>
+                  <span className="font-semibold text-white">{comments[currentComment].author}</span>
+                  <span className="text-gray-400 text-sm">{formatTimeAgo(comments[currentComment].publishedAt)}</span>
                 </div>
-                <p className="text-gray-200 text-left">
-                  {communityComments[currentComment].text}
-                </p>
+                <p 
+                  className="text-gray-200 text-left"
+                  dangerouslySetInnerHTML={{ __html: comments[currentComment].text }}
+                />
+                {comments[currentComment].likeCount > 0 && (
+                  <div className="flex items-center gap-1 mt-2 text-gray-400 text-sm">
+                    <span>👍</span>
+                    <span>{comments[currentComment].likeCount}</span>
+                  </div>
+                )}
               </div>
-              <div className="text-2xl">{communityComments[currentComment].emoji}</div>
+              <div className="text-2xl">{extractEmoji(comments[currentComment].text)}</div>
             </div>
           </div>
           
           {/* Comment indicators */}
           <div className="flex justify-center mt-4 space-x-2">
-            {communityComments.map((_, index) => (
+            {comments.map((_, index) => (
               <div
                 key={index}
                 className={`w-2 h-2 rounded-full transition-all duration-300 ${
@@ -338,7 +443,7 @@ function Section({ section, isVisible, isEven, channelId }: { section: Section; 
     }
     
     if (section.type === 'youtube-community') {
-      return <YouTubeCommunitySection />;
+      return <YouTubeCommunitySection channelId={channelId} />;
     }
     
     return (
