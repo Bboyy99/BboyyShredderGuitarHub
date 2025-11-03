@@ -6,6 +6,7 @@ import { YouTubeVideo } from '@/lib/youtube';
 export default function TabsPage() {
   const [video, setVideo] = useState<YouTubeVideo | null>(null);
   const [loading, setLoading] = useState(true);
+  const [downloadCount, setDownloadCount] = useState<number | null>(null);
 
   const videoTitle = 'Metallica Acoustic Medley II';
 
@@ -30,7 +31,37 @@ export default function TabsPage() {
     fetchVideo();
   }, [videoTitle]);
 
-  const handleDownload = () => {
+  // Fetch download count on page load
+  useEffect(() => {
+    async function fetchDownloadCount() {
+      try {
+        const response = await fetch('/api/track-download');
+        if (response.ok) {
+          const data = await response.json();
+          setDownloadCount(data.count || 0);
+        }
+      } catch (error) {
+        console.error('Error fetching download count:', error);
+      }
+    }
+
+    fetchDownloadCount();
+  }, []);
+
+  const handleDownload = async () => {
+    // Track the download
+    try {
+      const response = await fetch('/api/track-download', {
+        method: 'POST',
+      });
+      if (response.ok) {
+        const data = await response.json();
+        setDownloadCount(data.count);
+      }
+    } catch (error) {
+      console.error('Error tracking download:', error);
+    }
+
     // Link to the zip file in the public folder
     const link = document.createElement('a');
     link.href = '/tabs/metallica-acoustic-medley-ii-tabs.zip';
@@ -105,7 +136,12 @@ export default function TabsPage() {
                   <span>📥</span>
                   <span>Download Tabs (ZIP)</span>
                 </button>
-                <p className="text-gray-400 text-sm mt-4">
+                {downloadCount !== null && (
+                  <p className="text-blue-400 font-semibold text-lg mt-4">
+                    {downloadCount.toLocaleString()} {downloadCount === 1 ? 'person has' : 'people have'} downloaded these tabs! 🎸
+                  </p>
+                )}
+                <p className="text-gray-400 text-sm mt-2">
                   Free download - No signup required!
                 </p>
               </div>
