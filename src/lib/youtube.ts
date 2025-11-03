@@ -367,6 +367,76 @@ export async function getChannelComments(
   }
 }
 
+export async function getVideoByTitle(channelId: string, videoTitle: string): Promise<YouTubeVideo | null> {
+  try {
+    const apiKey = process.env.YOUTUBE_API_KEY;
+    if (!apiKey) {
+      console.warn('YouTube API key not found. Cannot search for video.');
+      return null;
+    }
+
+    // Search for videos matching the title
+    const searchUrl = new URL('https://www.googleapis.com/youtube/v3/search');
+    searchUrl.searchParams.set('part', 'snippet');
+    searchUrl.searchParams.set('channelId', channelId);
+    searchUrl.searchParams.set('q', videoTitle);
+    searchUrl.searchParams.set('type', 'video');
+    searchUrl.searchParams.set('maxResults', '10');
+    searchUrl.searchParams.set('key', apiKey);
+
+    const response = await fetch(searchUrl.toString());
+    if (!response.ok) {
+      throw new Error(`YouTube API error: ${response.status}`);
+    }
+
+    const data = await response.json();
+    const items = data.items || [];
+
+    // Find exact or close match
+    const match = items.find((item: { snippet: { title: string } }) => 
+      item.snippet.title.toLowerCase().includes(videoTitle.toLowerCase())
+    );
+
+    if (!match) {
+      return null;
+    }
+
+    const videoId = match.id.videoId;
+    
+    // Get full video details with statistics
+    const videoUrl = new URL('https://www.googleapis.com/youtube/v3/videos');
+    videoUrl.searchParams.set('part', 'snippet,statistics');
+    videoUrl.searchParams.set('id', videoId);
+    videoUrl.searchParams.set('key', apiKey);
+
+    const videoResponse = await fetch(videoUrl.toString());
+    if (!videoResponse.ok) {
+      throw new Error(`YouTube API error: ${videoResponse.status}`);
+    }
+
+    const videoData = await videoResponse.json();
+    if (videoData.items && videoData.items.length > 0) {
+      const video = videoData.items[0];
+      return {
+        id: video.id,
+        title: video.snippet.title,
+        description: video.snippet.description,
+        thumbnail: video.snippet.thumbnails?.medium?.url || '',
+        publishedAt: video.snippet.publishedAt,
+        channelTitle: video.snippet.channelTitle,
+        videoUrl: `https://www.youtube.com/watch?v=${video.id}`,
+        viewCount: parseInt(video.statistics?.viewCount, 10) || 0,
+        likeCount: parseInt(video.statistics?.likeCount, 10) || 0,
+      };
+    }
+
+    return null;
+  } catch (error) {
+    console.error('Error searching for video by title:', error);
+    return null;
+  }
+}
+
 function getFallbackVideos(): YouTubeVideo[] {
   return [
     {

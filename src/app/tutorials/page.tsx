@@ -96,6 +96,27 @@ export default function Tutorials() {
             </li>
           </ul>
         </div>
+
+        {/* Tabs */}
+        <a href="/tutorials/tabs" className="bg-gray-900/80 backdrop-blur-sm rounded-xl border border-blue-500/20 p-6 transform transition-all duration-300 hover:scale-105 cursor-pointer">
+          <h2 className="text-2xl font-semibold text-blue-400 mb-4">Guitar Tabs</h2>
+          <ul className="space-y-4">
+            <li className="flex items-start space-x-3">
+              <span className="text-blue-500 mt-1">→</span>
+              <div>
+                <h3 className="text-lg font-medium text-gray-200">Metallica Acoustic Medley II</h3>
+                <p className="text-gray-400 text-sm">Download free PDF tabs for all 3 songs</p>
+              </div>
+            </li>
+            <li className="flex items-start space-x-3">
+              <span className="text-blue-500 mt-1">→</span>
+              <div>
+                <h3 className="text-lg font-medium text-gray-200">More tabs coming soon!</h3>
+                <p className="text-gray-400 text-sm">Check back for new tab releases</p>
+              </div>
+            </li>
+          </ul>
+        </a>
       </section>
 
       {/* Featured Tutorial */}

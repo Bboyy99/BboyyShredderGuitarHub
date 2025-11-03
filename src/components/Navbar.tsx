@@ -118,6 +118,12 @@ const Navbar = () => {
                   >
                     Gear Setup
                   </Link>
+                  <Link
+                    href="/tutorials/tabs"
+                    className="block px-4 py-2 text-gray-300 hover:bg-blue-500/20 hover:text-blue-400 transition-colors"
+                  >
+                    🎼 Tabs
+                  </Link>
                 </div>
               )}
             </div>
@@ -225,6 +231,13 @@ const Navbar = () => {
                   onClick={closeMobileMenu}
                 >
                   Gear Setup
+                </Link>
+                <Link
+                  href="/tutorials/tabs"
+                  className="block px-4 py-2 text-gray-400 hover:text-blue-400 transition-colors"
+                  onClick={closeMobileMenu}
+                >
+                  🎼 Tabs
                 </Link>
               </div>
             </div>
