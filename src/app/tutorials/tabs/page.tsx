@@ -7,6 +7,7 @@ export default function TabsPage() {
   const [video, setVideo] = useState<YouTubeVideo | null>(null);
   const [loading, setLoading] = useState(true);
   const [downloadCount, setDownloadCount] = useState<number | null>(null);
+  const [downloadError, setDownloadError] = useState<string | null>(null);
 
   const videoTitle = 'Metallica Acoustic Medley II';
 
@@ -39,9 +40,17 @@ export default function TabsPage() {
         if (response.ok) {
           const data = await response.json();
           setDownloadCount(data.count || 0);
+          setDownloadError(null);
+        } else {
+          const errorData = await response.json().catch(() => ({}));
+          setDownloadError(
+            errorData?.error ||
+              'Unable to fetch download count right now. Please try again later.'
+          );
         }
       } catch (error) {
         console.error('Error fetching download count:', error);
+        setDownloadError('Unable to fetch download count right now. Please try again later.');
       }
     }
 
@@ -57,9 +66,17 @@ export default function TabsPage() {
       if (response.ok) {
         const data = await response.json();
         setDownloadCount(data.count);
+        setDownloadError(null);
+      } else {
+        const errorData = await response.json().catch(() => ({}));
+        setDownloadError(
+          errorData?.error ||
+            'Unable to record this download right now. The tabs are still yours to enjoy!'
+        );
       }
     } catch (error) {
       console.error('Error tracking download:', error);
+      setDownloadError('Unable to record this download right now. The tabs are still yours to enjoy!');
     }
 
     // Link to the zip file in the public folder
@@ -136,9 +153,14 @@ export default function TabsPage() {
                   <span>📥</span>
                   <span>Download Tabs (ZIP)</span>
                 </button>
-                {downloadCount !== null && (
+                {downloadCount !== null && !downloadError && (
                   <p className="text-blue-400 font-semibold text-lg mt-4">
                     {downloadCount.toLocaleString()} {downloadCount === 1 ? 'person has' : 'people have'} downloaded these tabs! 🎸
+                  </p>
+                )}
+                {downloadError && (
+                  <p className="text-yellow-400 text-sm mt-4">
+                    {downloadError}
                   </p>
                 )}
                 <p className="text-gray-400 text-sm mt-2">

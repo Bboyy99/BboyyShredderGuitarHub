@@ -62,3 +62,17 @@ To enable the dynamic latest covers section, you'll need to set up the YouTube D
    Replace `YOUR_CHANNEL_ID_HERE` in `src/app/page.tsx` with your actual channel ID.
 
 The app will fall back to static data if the API key is not provided, so it will work even without the YouTube API setup.
+
+## Download Counter Setup
+
+The Metallica Acoustic Medley II tabs page includes a download counter so you can see how many people have grabbed the ZIP. The counter persists between deployments when you configure [Vercel KV](https://vercel.com/docs/storage/vercel-kv):
+
+1. **Create a Vercel KV database** from the Vercel dashboard (Storage → KV).
+2. **Add these environment variables** (either in `.env.local` for local testing or in your Vercel project settings):
+   ```
+   KV_REST_API_URL=<your vercel kv rest url>
+   KV_REST_API_TOKEN=<your vercel kv rest token>
+   ```
+3. **Redeploy** your project. The counter will now increment and persist via Vercel KV.
+
+If the KV variables are not set (for example in local development), the counter falls back to a local JSON file at `data/download-counter.json`. This file is ignored by git so it never leaves your machine. On Vercel without KV configured, the API returns an error message reminding you to add the environment variables.
