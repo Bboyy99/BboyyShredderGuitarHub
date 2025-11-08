@@ -8,6 +8,7 @@ const Navbar = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const mobileMenuRef = useRef<HTMLDivElement>(null)
   const hamburgerRef = useRef<HTMLButtonElement>(null)
+  const tutorialsRef = useRef<HTMLDivElement>(null)
 
   const toggleMobileMenu = () => {
     setIsMobileMenuOpen(!isMobileMenuOpen)
@@ -56,6 +57,24 @@ const Navbar = () => {
     }
   }, [isMobileMenuOpen])
 
+  // Close tutorials dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        isTutorialsOpen &&
+        tutorialsRef.current &&
+        !tutorialsRef.current.contains(event.target as Node)
+      ) {
+        setIsTutorialsOpen(false)
+      }
+    }
+
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside)
+    }
+  }, [isTutorialsOpen])
+
   return (
     <nav className="bg-gray-900/95 backdrop-blur-sm shadow-lg border-b border-blue-500/20 sticky top-0 z-50">
       <div className="container mx-auto px-4">
@@ -77,7 +96,7 @@ const Navbar = () => {
             <Link href="/covers" className="text-gray-300 hover:text-blue-400 px-3 py-2 rounded-md transition-colors">
               Covers
             </Link>
-            <div className="relative">
+            <div className="relative" ref={tutorialsRef}>
               <button
                 onClick={() => setIsTutorialsOpen(!isTutorialsOpen)}
                 className="text-gray-300 hover:text-blue-400 px-3 py-2 rounded-md transition-colors flex items-center space-x-1"
@@ -95,34 +114,39 @@ const Navbar = () => {
               {isTutorialsOpen && (
                 <div className="absolute right-0 mt-2 w-48 bg-gray-900/95 backdrop-blur-sm rounded-lg shadow-xl border border-blue-500/20 py-2 z-50">
                   <Link
+                    href="/tutorials/tabs"
+                    className="block px-4 py-2 text-gray-300 hover:bg-blue-500/20 hover:text-blue-400 transition-colors"
+                    onClick={() => setIsTutorialsOpen(false)}
+                  >
+                    🎼 Tabs
+                  </Link>
+                  <Link
                     href="/tutorials"
                     className="block px-4 py-2 text-gray-300 hover:bg-blue-500/20 hover:text-blue-400 transition-colors"
+                    onClick={() => setIsTutorialsOpen(false)}
                   >
                     All Tutorials
                   </Link>
                   <Link
                     href="/tutorials#technique"
                     className="block px-4 py-2 text-gray-300 hover:bg-blue-500/20 hover:text-blue-400 transition-colors"
+                    onClick={() => setIsTutorialsOpen(false)}
                   >
                     Technique
                   </Link>
                   <Link
                     href="/tutorials#recording"
                     className="block px-4 py-2 text-gray-300 hover:bg-blue-500/20 hover:text-blue-400 transition-colors"
+                    onClick={() => setIsTutorialsOpen(false)}
                   >
                     Recording
                   </Link>
                   <Link
                     href="/tutorials#gear"
                     className="block px-4 py-2 text-gray-300 hover:bg-blue-500/20 hover:text-blue-400 transition-colors"
+                    onClick={() => setIsTutorialsOpen(false)}
                   >
                     Gear Setup
-                  </Link>
-                  <Link
-                    href="/tutorials/tabs"
-                    className="block px-4 py-2 text-gray-300 hover:bg-blue-500/20 hover:text-blue-400 transition-colors"
-                  >
-                    🎼 Tabs
                   </Link>
                 </div>
               )}
@@ -205,6 +229,13 @@ const Navbar = () => {
                 }`}
               >
                 <Link
+                  href="/tutorials/tabs"
+                  className="block px-4 py-2 text-gray-400 hover:text-blue-400 transition-colors"
+                  onClick={closeMobileMenu}
+                >
+                  🎼 Tabs
+                </Link>
+                <Link
                   href="/tutorials"
                   className="block px-4 py-2 text-gray-400 hover:text-blue-400 transition-colors"
                   onClick={closeMobileMenu}
@@ -231,13 +262,6 @@ const Navbar = () => {
                   onClick={closeMobileMenu}
                 >
                   Gear Setup
-                </Link>
-                <Link
-                  href="/tutorials/tabs"
-                  className="block px-4 py-2 text-gray-400 hover:text-blue-400 transition-colors"
-                  onClick={closeMobileMenu}
-                >
-                  🎼 Tabs
                 </Link>
               </div>
             </div>
